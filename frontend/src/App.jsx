@@ -2,6 +2,20 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 import Admin from './pages/Admin';
+import { Switch, Route } from 'react-router-dom';
+import Main from './pages/Main';
+import Navbar from './shared/Navbar';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#ff9900',
+            contrastText: '#fff'
+        }
+    }
+});
 
 function App() {
     // const buildingCodes = [
@@ -28,14 +42,22 @@ function App() {
     ]);
 
     return (
-        <div>
-            <Admin
-                outbound={outbound}
-                setOutbound={setOutbound}
-                inbound={inbound}
-                setInbound={setInbound}
-            />
-        </div>
+        <ThemeProvider theme={theme}>
+            <Navbar />
+            <Switch>
+                <Route exact path="/">
+                    <Main outbound={outbound} inbound={inbound} />
+                </Route>
+                <Route path="/admin">
+                    <Admin
+                        outbound={outbound}
+                        setOutbound={setOutbound}
+                        inbound={inbound}
+                        setInbound={setInbound}
+                    />
+                </Route>
+            </Switch>
+        </ThemeProvider>
     );
 }
 
