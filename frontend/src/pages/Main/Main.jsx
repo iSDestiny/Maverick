@@ -53,7 +53,13 @@ const Main = (props) => {
                                             alignItems="center"
                                         >
                                             <InboundBodyText variant="body1">
-                                                {door} {index === 0 && <Dot />}
+                                                <FlexContainer
+                                                    justify="center"
+                                                    alignItems="center"
+                                                >
+                                                    <span>{door}</span>{' '}
+                                                    {index === 0 && <Dot />}
+                                                </FlexContainer>
                                             </InboundBodyText>
                                         </Grid>
                                     ))}

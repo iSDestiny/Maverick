@@ -18,19 +18,6 @@ const theme = createMuiTheme({
 });
 
 function App() {
-    // const buildingCodes = [
-    //     'DSF3',
-    //     'DSF4',
-    //     'DSF5',
-    //     'DSF7',
-    //     'DSF8',
-    //     'DXC5',
-    //     'DXC8',
-    //     'DCX5',
-    //     'DSJ7',
-    //     'DFO3',
-    //     'DFA5'
-    // ];
     const [outbound, setOutbound] = useState([
         { id: 1, amzl: 'DSF3', door: '122' },
         { id: 2, amzl: 'DSF2', door: '93' }
