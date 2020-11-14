@@ -77,6 +77,10 @@ const Outbound = ({ currentOutbound, setCurrentOutbound }) => {
                                             disabled={!canEdit[index]}
                                             label="AMZL"
                                             value={amzl}
+                                            onClick={(event) =>
+                                                !canEdit[index] &&
+                                                editHandler(event, index)
+                                            }
                                             onChange={(event) =>
                                                 inputChangeHandler(
                                                     event.target.value,
@@ -92,6 +96,10 @@ const Outbound = ({ currentOutbound, setCurrentOutbound }) => {
                                             disabled={!canEdit[index]}
                                             label="Door #"
                                             value={door}
+                                            onClick={(event) =>
+                                                !canEdit[index] &&
+                                                editHandler(event, index)
+                                            }
                                             onChange={(event) => {
                                                 inputChangeHandler(
                                                     event.target.value,

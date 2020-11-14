@@ -19,8 +19,17 @@ const theme = createMuiTheme({
 
 function App() {
     const [outbound, setOutbound] = useState([
-        { id: 1, amzl: 'DSF3', door: '122' },
-        { id: 2, amzl: 'DSF2', door: '93' }
+        { id: 1, amzl: 'DSAD', door: '122' },
+        { id: 2, amzl: 'DS2A', door: '93' },
+        { id: 3, amzl: '2ACC', door: '93' },
+        { id: 4, amzl: 'DS11', door: '93' },
+        { id: 5, amzl: 'DS11', door: '93' },
+        { id: 6, amzl: 'DS11', door: '93' },
+        { id: 7, amzl: 'DS11', door: '93' },
+        { id: 8, amzl: 'DS11', door: '93' },
+        { id: 9, amzl: 'DS11', door: '93' },
+        { id: 10, amzl: 'DS11', door: '93' },
+        { id: 11, amzl: 'DS11', door: '93' }
     ]);
     const [inbound, setInbound] = useState([
         { id: 1, door: '222' },
