@@ -11,6 +11,7 @@ import {
 
 const Main = (props) => {
     const { outbound, inbound } = props;
+
     return (
         <Container>
             <Grid container spacing={1} style={{ height: '100%' }}>
@@ -34,13 +35,13 @@ const Main = (props) => {
                             style={{ padding: '0 10rem' }}
                         >
                             {outbound &&
-                                outbound.map(({ id, amzl, door }) => (
+                                outbound.map(({ _id, amzl, door }) => (
                                     <Grid
                                         id="grid for ob"
                                         container
                                         item
                                         xs={6}
-                                        key={id}
+                                        key={_id}
                                         justify="center"
                                     >
                                         <FlexContainer

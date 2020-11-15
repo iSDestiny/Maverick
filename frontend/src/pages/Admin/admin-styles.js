@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { Paper } from '@material-ui/core';
-import { FlexItem } from '../../shared/container-styles';
 
 export const InputGroup = styled.div`
     display: flex;

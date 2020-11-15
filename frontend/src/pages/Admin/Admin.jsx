@@ -1,12 +1,17 @@
 import { Container, Grid } from '@material-ui/core';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Inbound from './Inbound';
 import Outbound from './Outbound';
 
 const Admin = (props) => {
     const { outbound, inbound, setOutbound, setInbound } = props;
-    // const [currentOutbound, setCurrentOutbound] = useState(outbound);
-    // const [currentInbound, setCurrentInbound] = useState(inbound);
+    const [currentOutbound, setCurrentOutbound] = useState([]);
+    const [currentInbound, setCurrentInbound] = useState([]);
+
+    useEffect(() => {
+        setCurrentInbound(inbound);
+        setCurrentOutbound(outbound);
+    }, [inbound, outbound]);
 
     return (
         <Container
@@ -16,15 +21,17 @@ const Admin = (props) => {
             <Grid container spacing={4} justify="center">
                 <Grid container item md={7}>
                     <Outbound
-                        currentOutbound={outbound}
-                        setCurrentOutbound={setOutbound}
+                        setOutbound={setOutbound}
+                        currentOutbound={currentOutbound}
+                        setCurrentOutbound={setCurrentOutbound}
                     />
                 </Grid>
 
                 <Grid container item md={5}>
                     <Inbound
-                        currentInbound={inbound}
-                        setCurrentInbound={setInbound}
+                        setInbound={setInbound}
+                        currentInbound={currentInbound}
+                        setCurrentInbound={setCurrentInbound}
                     />
                 </Grid>
             </Grid>

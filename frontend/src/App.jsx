@@ -1,6 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import openSocket from 'socket.io-client';
+import axios from 'axios';
 import Admin from './pages/Admin';
 import { Switch, Route } from 'react-router-dom';
 import Main from './pages/Main';
@@ -18,24 +19,67 @@ const theme = createMuiTheme({
 });
 
 function App() {
-    const [outbound, setOutbound] = useState([
-        { id: 1, amzl: 'DSAD', door: '122' },
-        { id: 2, amzl: 'DS2A', door: '93' },
-        { id: 3, amzl: '2ACC', door: '93' },
-        { id: 4, amzl: 'DS11', door: '93' },
-        { id: 5, amzl: 'DS11', door: '93' },
-        { id: 6, amzl: 'DS11', door: '93' },
-        { id: 7, amzl: 'DS11', door: '93' },
-        { id: 8, amzl: 'DS11', door: '93' },
-        { id: 9, amzl: 'DS11', door: '93' },
-        { id: 10, amzl: 'DS11', door: '93' },
-        { id: 11, amzl: 'DS11', door: '93' }
-    ]);
+    const [outbound, setOutbound] = useState([]);
     const [inbound, setInbound] = useState([
         { id: 1, door: '222' },
         { id: 2, door: '253' },
         { id: 3, door: '234' }
     ]);
+
+    const addOutbound = (outbound) => {
+        setOutbound((prev) => {
+            return [...prev, outbound];
+        });
+    };
+
+    const deleteOutbound = (id) => {
+        setOutbound((prev) => prev.filter((ob) => ob._id !== id));
+    };
+
+    const modifyOutbound = (outbound) => {
+        const { _id } = outbound;
+        setOutbound((prev) => {
+            let newOutbound = [...prev];
+            const index = prev.findIndex((ob) => ob._id === _id);
+            if (index >= 0) newOutbound[index] = outbound;
+            return newOutbound;
+        });
+    };
+
+    const socketOutboundActions = (socket) => {
+        socket.on('outbound', (data) => {
+            const { action, outbound } = data;
+            switch (action) {
+                case 'create':
+                    addOutbound(outbound);
+                    break;
+                case 'modify':
+                    modifyOutbound(outbound);
+                    break;
+                case 'delete':
+                    deleteOutbound(outbound._id);
+                    break;
+                default:
+                    console.log('Action is not valid');
+                    return;
+            }
+        });
+    };
+
+    useEffect(() => {
+        axios
+            .get(process.env.REACT_APP_BACKEND_DOMAIN + '/main')
+            .then((res) => {
+                const { inbounds, outbounds } = res.data;
+                setOutbound(outbounds);
+                // setInbound(inbounds);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        const socket = openSocket(process.env.REACT_APP_BACKEND_DOMAIN);
+        socketOutboundActions(socket);
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
