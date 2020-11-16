@@ -1,7 +1,6 @@
 import { Container, Grid } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
-import Inbound from './Inbound';
-import Outbound from './Outbound';
+import AdminForm from './AdminForm';
 
 const Admin = (props) => {
     const { outbound, inbound, setOutbound, setInbound } = props;
@@ -20,18 +19,20 @@ const Admin = (props) => {
         >
             <Grid container spacing={4} justify="center">
                 <Grid container item md={7}>
-                    <Outbound
-                        setOutbound={setOutbound}
-                        currentOutbound={currentOutbound}
-                        setCurrentOutbound={setCurrentOutbound}
+                    <AdminForm
+                        formType="outbound"
+                        setData={setOutbound}
+                        currentData={currentOutbound}
+                        setCurrentData={setCurrentOutbound}
                     />
                 </Grid>
 
                 <Grid container item md={5}>
-                    <Inbound
-                        setInbound={setInbound}
-                        currentInbound={currentInbound}
-                        setCurrentInbound={setCurrentInbound}
+                    <AdminForm
+                        formType="inbound"
+                        setData={setInbound}
+                        currentData={currentInbound}
+                        setCurrentData={setCurrentInbound}
                     />
                 </Grid>
             </Grid>

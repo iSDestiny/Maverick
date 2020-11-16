@@ -8,51 +8,48 @@ import { FlexContainer, FlexItem } from '../../shared/container-styles';
 import { InputGroup, Input, MyPaper } from './admin-styles';
 import { TextField, Typography, IconButton } from '@material-ui/core';
 
-const Outbound = ({ setOutbound, currentOutbound, setCurrentOutbound }) => {
+const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     const [canEdit, setCanEdit] = useState([]);
     const [canAdd, setCanAdd] = useState(true);
     const [currentEditItem, setCurrentEditItem] = useState(-1);
 
     useEffect(() => {
-        console.log('cb len ' + currentOutbound.length);
-        if (currentOutbound.length > 0) {
-            setCanEdit((prev) => {
-                let result = [...Array(currentOutbound.length).keys()].map(
-                    (_, index) => {
-                        // return index === currentOutbound.length - 1;
-                        return index === currentEditItem;
-                    }
-                );
-                return result;
-            });
+        console.log('cb len ' + currentData.length);
+        if (currentData.length > 0) {
+            setCanEdit(
+                [...Array(currentData.length).keys()].map((_, index) => {
+                    // return index === currentOutbound.length - 1;
+                    return index === currentEditItem;
+                })
+            );
             // setCurrentEditItem(currentOutbound.length - 1);
         }
-    }, [currentOutbound.length, currentEditItem]);
+    }, [currentData.length, currentEditItem]);
 
     const inputChangeHandler = (value, property, index) => {
-        setCurrentOutbound((prev) => {
-            let newOutbound = [...prev];
-            newOutbound[index][property] = value;
-            return newOutbound;
+        setCurrentData((prev) => {
+            let newData = [...prev];
+            newData[index][property] = value;
+            return newData;
         });
     };
 
     const deleteHandler = (id, index) => {
         const deleteLogic = () => {
-            setCurrentOutbound((prev) => {
+            setCurrentData((prev) => {
                 console.log('delete ' + id);
-                const newOutbound = prev.filter((ob) => ob._id !== id);
-                setOutbound(newOutbound);
-                return newOutbound;
+                const newData = prev.filter((ob) => ob._id !== id);
+                setData(newData);
+                return newData;
             });
-            if (index === currentOutbound.length - 1) setCanAdd(true);
+            if (index === currentData.length - 1) setCanAdd(true);
         };
 
-        if (currentOutbound[index].isTemp) return deleteLogic();
+        if (currentData[index].isTemp) return deleteLogic();
 
         axios
             .delete(
-                `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/outbound/${id}`
+                `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/${formType}/${id}`
             )
             .then(() => {
                 console.log('delete success');
@@ -68,39 +65,35 @@ const Outbound = ({ setOutbound, currentOutbound, setCurrentOutbound }) => {
             return newCanEdits;
         });
 
-        const { _id, amzl, door, isTemp } = currentOutbound[index];
+        const { _id, amzl, door, isTemp } = currentData[index];
+        const requestUrl = `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/${formType}`;
+        const postData =
+            formType === 'outbound'
+                ? { amzl: amzl, door: door }
+                : { door: door };
+        const putData = { ...postData, id: _id };
 
         if (isTemp) {
             axios
-                .post(
-                    process.env.REACT_APP_BACKEND_DOMAIN + '/admin/outbound',
-                    {
-                        amzl: amzl,
-                        door: door
-                    }
-                )
-                .then(({ data: { outbound } }) => {
-                    setOutbound(currentOutbound);
-                    setCurrentOutbound((prev) => {
+                .post(requestUrl, postData)
+                .then(({ data }) => {
+                    setData(currentData);
+                    setCurrentData((prev) => {
                         const newCurr = [...prev];
-                        newCurr[index] = outbound;
+                        newCurr[index] = data[formType];
                         return newCurr;
                     });
-                    if (index === currentOutbound.length - 1) setCanAdd(true);
+                    if (index === currentData.length - 1) setCanAdd(true);
                 })
                 .catch((err) => {
                     console.log(err);
                 });
         } else {
             axios
-                .put(process.env.REACT_APP_BACKEND_DOMAIN + '/admin/outbound', {
-                    id: _id,
-                    amzl: amzl,
-                    door: door
-                })
+                .put(requestUrl, putData)
                 .then(() => {
-                    setOutbound(currentOutbound);
-                    if (index === currentOutbound.length - 1) setCanAdd(true);
+                    setData(currentData);
+                    if (index === currentData.length - 1) setCanAdd(true);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -122,15 +115,15 @@ const Outbound = ({ setOutbound, currentOutbound, setCurrentOutbound }) => {
 
     const addEntryHandler = () => {
         setCurrentEditItem(canEdit.length);
-        setCurrentOutbound((prev) => {
-            let newOutbound = [...prev];
-            newOutbound.push({
+        setCurrentData((prev) => {
+            let newData = [...prev];
+            newData.push({
                 _id: Math.random() * 10,
                 amzl: '',
                 door: '',
                 isTemp: true
             });
-            return newOutbound;
+            return newData;
         });
         console.log('can edit len ' + canEdit.length);
         setCanAdd(false);
@@ -138,33 +131,43 @@ const Outbound = ({ setOutbound, currentOutbound, setCurrentOutbound }) => {
 
     return (
         <FlexContainer direction="column">
-            <Typography variant="h4">Outbound</Typography>
+            <Typography variant="h4" style={{ textTransform: 'capitalize' }}>
+                {formType}
+            </Typography>
             <FlexItem flexGrow="2">
                 <MyPaper>
-                    {currentOutbound &&
-                        currentOutbound.map(({ _id, amzl, door }, index) => {
+                    {currentData &&
+                        currentData.map(({ _id, amzl, door }, index) => {
                             return (
                                 <form key={_id}>
                                     <InputGroup>
-                                        <Input flexGrow="3" flexBasis="100%">
-                                            <TextField
-                                                disabled={!canEdit[index]}
-                                                label="Delivery Station"
-                                                value={amzl}
-                                                onClick={(event) =>
-                                                    !canEdit[index] &&
-                                                    editHandler(event, index)
-                                                }
-                                                onChange={(event) =>
-                                                    inputChangeHandler(
-                                                        event.target.value,
-                                                        'amzl',
-                                                        index
-                                                    )
-                                                }
-                                                fullWidth
-                                            />
-                                        </Input>
+                                        {formType === 'outbound' && (
+                                            <Input
+                                                flexGrow="3"
+                                                flexBasis="100%"
+                                            >
+                                                <TextField
+                                                    disabled={!canEdit[index]}
+                                                    label="Delivery Station"
+                                                    value={amzl}
+                                                    onClick={(event) =>
+                                                        !canEdit[index] &&
+                                                        editHandler(
+                                                            event,
+                                                            index
+                                                        )
+                                                    }
+                                                    onChange={(event) =>
+                                                        inputChangeHandler(
+                                                            event.target.value,
+                                                            'amzl',
+                                                            index
+                                                        )
+                                                    }
+                                                    fullWidth
+                                                />
+                                            </Input>
+                                        )}
                                         <Input flexGrow="3" flexBasis="100%">
                                             <TextField
                                                 disabled={!canEdit[index]}
@@ -244,4 +247,4 @@ const Outbound = ({ setOutbound, currentOutbound, setCurrentOutbound }) => {
     );
 };
 
-export default Outbound;
+export default AdminForm;

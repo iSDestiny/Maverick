@@ -72,12 +72,12 @@ const Main = (props) => {
                             {inbound &&
                                 inbound
                                     .slice(0, 5)
-                                    .map(({ id, door }, index) => (
+                                    .map(({ _id, door }, index) => (
                                         <Grid
                                             container
                                             item
                                             direction="column"
-                                            key={id}
+                                            key={_id}
                                             alignItems="center"
                                         >
                                             <FlexContainer

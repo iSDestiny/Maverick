@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import openSocket from 'socket.io-client';
 import axios from 'axios';
 import Admin from './pages/Admin';
@@ -20,11 +20,7 @@ const theme = createMuiTheme({
 
 function App() {
     const [outbound, setOutbound] = useState([]);
-    const [inbound, setInbound] = useState([
-        { id: 1, door: '222' },
-        { id: 2, door: '253' },
-        { id: 3, door: '234' }
-    ]);
+    const [inbound, setInbound] = useState([]);
 
     const addOutbound = (outbound) => {
         setOutbound((prev) => {
@@ -46,7 +42,27 @@ function App() {
         });
     };
 
-    const socketOutboundActions = (socket) => {
+    const addInbound = (inbound) => {
+        setInbound((prev) => {
+            return [...prev, inbound];
+        });
+    };
+
+    const deleteInbound = (id) => {
+        setInbound((prev) => prev.filter((ib) => ib._id !== id));
+    };
+
+    const modifyInbound = (inbound) => {
+        const { _id } = inbound;
+        setInbound((prev) => {
+            let newInbound = [...prev];
+            const index = prev.findIndex((ib) => ib._id === _id);
+            if (index >= 0) newInbound[index] = inbound;
+            return newInbound;
+        });
+    };
+
+    const socketOutboundActions = useCallback((socket) => {
         socket.on('outbound', (data) => {
             const { action, outbound } = data;
             switch (action) {
@@ -64,7 +80,27 @@ function App() {
                     return;
             }
         });
-    };
+    }, []);
+
+    const socketInboundActions = useCallback((socket) => {
+        socket.on('inbound', (data) => {
+            const { action, inbound } = data;
+            switch (action) {
+                case 'create':
+                    addInbound(inbound);
+                    break;
+                case 'modify':
+                    modifyInbound(inbound);
+                    break;
+                case 'delete':
+                    deleteInbound(inbound._id);
+                    break;
+                default:
+                    console.log('Action is not valid');
+                    return;
+            }
+        });
+    }, []);
 
     useEffect(() => {
         axios
@@ -72,14 +108,15 @@ function App() {
             .then((res) => {
                 const { inbounds, outbounds } = res.data;
                 setOutbound(outbounds);
-                // setInbound(inbounds);
+                setInbound(inbounds);
             })
             .catch((err) => {
                 console.log(err);
             });
         const socket = openSocket(process.env.REACT_APP_BACKEND_DOMAIN);
         socketOutboundActions(socket);
-    }, []);
+        socketInboundActions(socket);
+    }, [socketOutboundActions, socketInboundActions]);
 
     return (
         <ThemeProvider theme={theme}>
