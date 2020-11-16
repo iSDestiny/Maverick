@@ -106,7 +106,10 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
         console.log('Editing');
         setCanEdit((prev) => {
             let newCanEdits = [...prev];
-            if (currentEditItem >= 0) newCanEdits[currentEditItem] = false;
+            if (currentEditItem >= 0) {
+                newCanEdits[currentEditItem] = false;
+                doneEditingHandler(event, currentEditItem);
+            }
             setCurrentEditItem(index);
             newCanEdits[index] = true;
             return newCanEdits;
