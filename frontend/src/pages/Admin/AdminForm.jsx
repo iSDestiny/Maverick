@@ -16,10 +16,10 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     useEffect(() => {
         console.log('cb len ' + currentData.length);
         if (currentData.length > 0) {
-            setCanEdit(
+            setCanEdit((prev) =>
                 [...Array(currentData.length).keys()].map((_, index) => {
                     // return index === currentOutbound.length - 1;
-                    return index === currentEditItem;
+                    return index === currentEditItem ? prev[index] : false;
                 })
             );
             // setCurrentEditItem(currentOutbound.length - 1);
@@ -44,7 +44,8 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
             });
             if (index === currentData.length - 1) setCanAdd(true);
         };
-
+        console.log('delete index ' + index);
+        console.log(currentData[index]);
         if (currentData[index].isTemp) return deleteLogic();
 
         axios
@@ -58,13 +59,15 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
 
     const doneEditingHandler = (event, index) => {
         event.preventDefault();
+        if (!currentData[index]) return;
         console.log('Submit ' + index);
         setCanEdit((prev) => {
             let newCanEdits = [...prev];
             newCanEdits[index] = false;
             return newCanEdits;
         });
-
+        console.log('done index ' + index);
+        console.log(currentData[index]);
         const { _id, amzl, door, isTemp } = currentData[index];
         const requestUrl = `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/${formType}`;
         const postData =
@@ -77,11 +80,12 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
             axios
                 .post(requestUrl, postData)
                 .then(({ data }) => {
-                    setData(currentData);
-                    setCurrentData((prev) => {
-                        const newCurr = [...prev];
-                        newCurr[index] = data[formType];
-                        return newCurr;
+                    // console.log('post data');
+                    // console.log(data[formType]);
+                    setData((prev) => {
+                        const newData = [...prev];
+                        newData[index] = data[formType];
+                        return newData;
                     });
                     if (index === currentData.length - 1) setCanAdd(true);
                 })
@@ -106,7 +110,7 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
         console.log('Editing');
         setCanEdit((prev) => {
             let newCanEdits = [...prev];
-            if (currentEditItem >= 0) {
+            if (currentEditItem >= 0 && currentEditItem !== index) {
                 newCanEdits[currentEditItem] = false;
                 doneEditingHandler(event, currentEditItem);
             }
@@ -139,7 +143,7 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
             </Typography>
             <FlexItem flexGrow="2">
                 <MyPaper>
-                    {currentData &&
+                    {currentData.length > 0 &&
                         currentData.map(({ _id, amzl, door }, index) => {
                             return (
                                 <form key={_id}>

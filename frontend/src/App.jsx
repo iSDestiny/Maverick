@@ -23,16 +23,22 @@ function App() {
     const [inbound, setInbound] = useState([]);
 
     const addOutbound = (outbound) => {
+        console.log('add outbound received socket');
         setOutbound((prev) => {
-            return [...prev, outbound];
+            let newOutbound = [...prev];
+            const found = prev.find((ob) => ob._id === outbound._id);
+            if (!found) newOutbound.push(outbound);
+            return newOutbound;
         });
     };
 
     const deleteOutbound = (id) => {
+        console.log('delete outbound received socket');
         setOutbound((prev) => prev.filter((ob) => ob._id !== id));
     };
 
     const modifyOutbound = (outbound) => {
+        console.log('modify outbound received socket');
         const { _id } = outbound;
         setOutbound((prev) => {
             let newOutbound = [...prev];
@@ -43,17 +49,27 @@ function App() {
     };
 
     const addInbound = (inbound) => {
+        console.log('add inbound received socket');
         setInbound((prev) => {
-            return [...prev, inbound];
+            let newInbound = [...prev];
+            const found = prev.find((ib) => ib._id === inbound._id);
+            if (!found) newInbound.push(inbound);
+            return newInbound;
         });
     };
 
     const deleteInbound = (id) => {
-        setInbound((prev) => prev.filter((ib) => ib._id !== id));
+        console.log('delete inbound received socket');
+        setInbound((prev) => {
+            const result = prev.filter((ib) => ib._id !== id);
+            console.log(result);
+            return result;
+        });
     };
 
     const modifyInbound = (inbound) => {
         const { _id } = inbound;
+        console.log('modify inbound received socket');
         setInbound((prev) => {
             let newInbound = [...prev];
             const index = prev.findIndex((ib) => ib._id === _id);

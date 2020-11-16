@@ -34,7 +34,7 @@ const Main = (props) => {
                             justify="flex-start"
                             style={{ padding: '0 10rem' }}
                         >
-                            {outbound &&
+                            {outbound.length > 0 &&
                                 outbound.map(({ _id, amzl, door }) => (
                                     <Grid
                                         id="grid for ob"
@@ -69,7 +69,7 @@ const Main = (props) => {
                     <FlexContainer direction="column" alignItems="center">
                         <MainHeaderText variant="h1">INBOUND</MainHeaderText>
                         <Grid container spacing={1}>
-                            {inbound &&
+                            {inbound.length > 0 &&
                                 inbound
                                     .slice(0, 5)
                                     .map(({ _id, door }, index) => (
