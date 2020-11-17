@@ -1,9 +1,9 @@
 const io = require('../socket');
 const Inbound = require('../model/Inbound');
 
-exports.getInbound = (req, res, next) => {
+exports.getInbound = async (req, res, next) => {
     try {
-        const inbounds = Inbound.find();
+        const inbounds = await Inbound.find();
         res.json(inbounds);
     } catch (err) {
         next(err);

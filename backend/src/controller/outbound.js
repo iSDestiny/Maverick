@@ -3,7 +3,7 @@ const Outbound = require('../model/Outbound');
 
 exports.getOutbound = async (req, res, next) => {
     try {
-        const outbounds = Outbound.find();
+        const outbounds = await Outbound.find();
         res.json(outbounds);
     } catch (err) {
         next(err);
