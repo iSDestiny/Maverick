@@ -1,11 +1,24 @@
 import { Container, Grid } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import AdminForm from './AdminForm';
 
 const Admin = (props) => {
-    const { outbound, inbound, setOutbound, setInbound } = props;
+    const {
+        password,
+        correctPassword,
+        outbound,
+        inbound,
+        setOutbound,
+        setInbound
+    } = props;
     const [currentOutbound, setCurrentOutbound] = useState([]);
     const [currentInbound, setCurrentInbound] = useState([]);
+    const history = useHistory();
+
+    if (correctPassword !== password) {
+        history.push('/login');
+    }
 
     useEffect(() => {
         setCurrentInbound(inbound);

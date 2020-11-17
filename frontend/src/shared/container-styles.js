@@ -7,6 +7,7 @@ export const FlexItem = styled.div`
 
 export const FlexContainer = styled.div`
     /* height: 100%; */
+    height: ${({ height }) => height};
     width: ${({ width }) => (width ? width : '100%')};
     min-width: ${({ minWidth }) => minWidth};
     max-width: ${({ maxWidth }) => maxWidth};

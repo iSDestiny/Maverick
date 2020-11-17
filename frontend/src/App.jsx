@@ -8,6 +8,7 @@ import Main from './pages/Main';
 import Navbar from './shared/Navbar';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
+import FakeLogin from './pages/FakeLogin';
 
 const theme = createMuiTheme({
     palette: {
@@ -18,9 +19,12 @@ const theme = createMuiTheme({
     }
 });
 
+const correctPassword = 'jasoniscool123';
+
 function App() {
     const [outbound, setOutbound] = useState([]);
     const [inbound, setInbound] = useState([]);
+    const [password, setPassword] = useState('');
 
     const addOutbound = (outbound) => {
         console.log('add outbound received socket');
@@ -141,12 +145,22 @@ function App() {
                 <Route exact path="/">
                     <Main outbound={outbound} inbound={inbound} />
                 </Route>
+
                 <Route path="/admin">
                     <Admin
+                        correctPassword={correctPassword}
+                        password={password}
                         outbound={outbound}
                         setOutbound={setOutbound}
                         inbound={inbound}
                         setInbound={setInbound}
+                    />
+                </Route>
+                <Route path="/login">
+                    <FakeLogin
+                        correctPassword={correctPassword}
+                        password={password}
+                        setPassword={setPassword}
                     />
                 </Route>
             </Switch>

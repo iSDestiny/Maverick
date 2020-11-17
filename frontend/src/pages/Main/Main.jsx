@@ -37,7 +37,6 @@ const Main = (props) => {
                             {outbound.length > 0 &&
                                 outbound.map(({ _id, amzl, door }) => (
                                     <Grid
-                                        id="grid for ob"
                                         container
                                         item
                                         xs={6}
@@ -46,7 +45,6 @@ const Main = (props) => {
                                     >
                                         <FlexContainer
                                             justify="space-between"
-                                            id="text"
                                             width="480px"
                                         >
                                             <OutboundBodyText variant="body1">

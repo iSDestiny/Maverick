@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 const Navbar = () => {
     const location = useLocation();
     const validUrls = ['/', '/admin'];
+    if (location.pathname === '/login') return null;
     return (
         <AppBar position="static">
             <Tabs
