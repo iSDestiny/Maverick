@@ -1,4 +1,4 @@
-import { Button, Container, Paper, TextField } from '@material-ui/core';
+import { Button, Paper, TextField, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import React, { useState } from 'react';
 import { FlexContainer } from '../shared/container-styles';
@@ -16,14 +16,27 @@ const FakeLogin = ({ correctPassword, password, setPassword }) => {
         }
     };
     return (
-        <Container style={{ marginTop: '3rem', padding: '0 30rem' }}>
-            <Paper>
+        <FlexContainer
+            justify="center"
+            style={{ marginTop: '3rem', padding: '0 10rem' }}
+        >
+            <Paper style={{ maxWidth: '400px', padding: '2rem 3rem' }}>
+                <Typography
+                    variant="h1"
+                    style={{
+                        fontSize: '2rem',
+                        textAlign: 'center',
+                        fontWeight: '600'
+                    }}
+                >
+                    Admin Access
+                </Typography>
                 <form>
                     <FlexContainer
                         direction="column"
                         justify="center"
                         alignItems="center"
-                        height="50vh"
+                        height="35vh"
                     >
                         <TextField
                             type="password"
@@ -47,7 +60,7 @@ const FakeLogin = ({ correctPassword, password, setPassword }) => {
                     </FlexContainer>
                 </form>
             </Paper>
-        </Container>
+        </FlexContainer>
     );
 };
 
