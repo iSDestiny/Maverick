@@ -21,8 +21,22 @@ const Admin = (props) => {
     }
 
     useEffect(() => {
-        setCurrentInbound(inbound);
-        setCurrentOutbound(outbound);
+        setCurrentInbound((prev) => {
+            const lastItem = prev[prev.length - 1];
+            if (lastItem && lastItem.isTemp && !lastItem.door) {
+                const tempLast = lastItem;
+                return [...inbound, tempLast];
+            }
+            return inbound;
+        });
+        setCurrentOutbound((prev) => {
+            const lastItem = prev[prev.length - 1];
+            if (lastItem && lastItem.isTemp && !lastItem.door) {
+                const tempLast = lastItem;
+                return [...outbound, tempLast];
+            }
+            return outbound;
+        });
     }, [inbound, outbound]);
 
     return (

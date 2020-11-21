@@ -32,6 +32,8 @@ function App() {
             let newOutbound = [...prev];
             const found = prev.find((ob) => ob._id === outbound._id);
             if (!found) newOutbound.push(outbound);
+            console.log(newOutbound);
+            // return newOutbound.filter((ob) => !ob.isTemp);
             return newOutbound;
         });
     };
@@ -58,6 +60,7 @@ function App() {
             let newInbound = [...prev];
             const found = prev.find((ib) => ib._id === inbound._id);
             if (!found) newInbound.push(inbound);
+            // return newInbound.filter((ib) => !ib.isTemp);
             return newInbound;
         });
     };

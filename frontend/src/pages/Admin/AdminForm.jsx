@@ -12,17 +12,33 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     const [canEdit, setCanEdit] = useState([]);
     const [canAdd, setCanAdd] = useState(true);
     const [currentEditItem, setCurrentEditItem] = useState(-1);
-
+    const [error, setError] = useState([]);
     useEffect(() => {
-        console.log('cb len ' + currentData.length);
+        // console.log('cb len ' + currentData.length);
+        setCanAdd(true);
+        if (currentData.length < currentEditItem) setCurrentEditItem(-1);
         if (currentData.length > 0) {
             setCanEdit((prev) =>
                 [...Array(currentData.length).keys()].map((_, index) => {
-                    // return index === currentOutbound.length - 1;
                     return index === currentEditItem ? prev[index] : false;
                 })
             );
-            // setCurrentEditItem(currentOutbound.length - 1);
+            setError((prev) =>
+                prev.length === 0
+                    ? [...Array(currentData.length).keys()].map((_) => {
+                          return { amzl: false, door: false };
+                      })
+                    : [...Array(currentData.length).keys()].map((_, index) => {
+                          if (
+                              prev[index] &&
+                              (prev[index].amzl || prev[index].door)
+                          )
+                              setCanAdd(false);
+                          return prev[index]
+                              ? prev[index]
+                              : { amzl: false, door: false };
+                      })
+            );
         }
     }, [currentData.length, currentEditItem]);
 
@@ -37,17 +53,33 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     const deleteHandler = (id, index) => {
         const deleteLogic = () => {
             setCurrentData((prev) => {
-                console.log('delete ' + id);
+                // console.log('delete ' + id);
                 const newData = prev.filter((ob) => ob._id !== id);
                 setData(newData);
+                // console.log(newData.length);
+                if (newData.length === 0) setCanAdd(true);
                 return newData;
             });
             if (index === currentData.length - 1) setCanAdd(true);
         };
-        console.log('delete index ' + index);
-        console.log(currentData[index]);
+        if (index === currentEditItem) {
+            setCurrentEditItem(-1);
+        } else {
+            if (currentEditItem >= 0 && currentEditItem !== index)
+                doneEditingHandler(null, currentEditItem);
+            if (currentEditItem >= 0 && error[currentEditItem]) {
+                const { amzl, door } = error[currentEditItem];
+                console.log('edit error ' + error[currentEditItem]);
+                if (
+                    (formType === 'outbound' && (amzl || door)) ||
+                    (formType === 'inbound' && door)
+                )
+                    return;
+            }
+        }
+        // console.log('delete index ' + index);
+        // console.log(currentData[index]);
         if (currentData[index].isTemp) return deleteLogic();
-
         axios
             .delete(
                 `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/${formType}/${id}`
@@ -58,17 +90,13 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     };
 
     const doneEditingHandler = (event, index) => {
-        event.preventDefault();
+        console.log(currentEditItem);
+        if (event) event.preventDefault();
         if (!currentData[index]) return;
-        console.log('Submit ' + index);
-        setCanEdit((prev) => {
-            let newCanEdits = [...prev];
-            newCanEdits[index] = false;
-            return newCanEdits;
-        });
-        console.log('done index ' + index);
-        console.log(currentData[index]);
-        const { _id, amzl, door, isTemp } = currentData[index];
+        // console.log('Submit ' + index);
+        // console.log('done index ' + index);
+        // console.log(currentData[index]);
+        let { _id, amzl, door, isTemp } = currentData[index];
         const requestUrl = `${process.env.REACT_APP_BACKEND_DOMAIN}/admin/${formType}`;
         const postData =
             formType === 'outbound'
@@ -76,18 +104,43 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
                 : { door: door };
         const putData = { ...postData, id: _id };
 
+        if (amzl) amzl = amzl.trim();
+        if (door) door = door.trim();
+
+        if (
+            (formType === 'outbound' && (!amzl || !door)) ||
+            (formType === 'inbound' && !door)
+        ) {
+            setError((prev) => {
+                const newError = [...prev];
+                // console.log('new error ' + newError);
+                // console.log('error index ' + index);
+                newError[index].amzl = formType === 'outbound' && !amzl;
+                newError[index].door = !door;
+                return newError;
+            });
+            return;
+        }
+        setCurrentEditItem(-1);
+        setCanEdit((prev) => {
+            let newCanEdits = [...prev];
+            newCanEdits[index] = false;
+            return newCanEdits;
+        });
+
+        setError((prev) => {
+            const newError = [...prev];
+            newError[index] = { amzl: false, door: false };
+            return newError;
+        });
         if (isTemp) {
             axios
                 .post(requestUrl, postData)
-                .then(({ data }) => {
-                    // console.log('post data');
-                    // console.log(data[formType]);
-                    setData((prev) => {
-                        const newData = [...prev];
-                        newData[index] = data[formType];
-                        return newData;
-                    });
-                    if (index === currentData.length - 1) setCanAdd(true);
+                .then(() => {
+                    setCanAdd(true);
+                    if (index === currentData.length - 1) {
+                        setCanAdd(true);
+                    }
                 })
                 .catch((err) => {
                     console.log(err);
@@ -96,7 +149,8 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
             axios
                 .put(requestUrl, putData)
                 .then(() => {
-                    setData(currentData);
+                    // setData(currentData);
+                    setCanAdd(true);
                     if (index === currentData.length - 1) setCanAdd(true);
                 })
                 .catch((err) => {
@@ -105,14 +159,33 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
         }
     };
 
+    // Handles setting the current edit item to the clicked item, toggles the new edit item to be editable and submits the previous
+    // item that was being edited
     const editHandler = (event, index) => {
-        event.preventDefault();
-        console.log('Editing');
+        if (event) event.preventDefault();
+        // console.log('Editing');
+        console.log('previous edit item ' + currentEditItem);
+        if (currentEditItem >= 0 && currentEditItem !== index)
+            doneEditingHandler(event, currentEditItem);
+        if (currentEditItem >= 0 && error[currentEditItem]) {
+            const { amzl, door } = error[currentEditItem];
+            console.log('edit error ' + error[currentEditItem]);
+            if (
+                (formType === 'outbound' && (amzl || door)) ||
+                (formType === 'inbound' && door)
+            )
+                setCanAdd(false);
+            return;
+        }
+        setOnlyEdits(index);
+    };
+
+    // Logic for editHandler without submitting the previous value
+    const setOnlyEdits = (index) => {
         setCanEdit((prev) => {
             let newCanEdits = [...prev];
             if (currentEditItem >= 0 && currentEditItem !== index) {
                 newCanEdits[currentEditItem] = false;
-                doneEditingHandler(event, currentEditItem);
             }
             setCurrentEditItem(index);
             newCanEdits[index] = true;
@@ -121,19 +194,31 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
     };
 
     const addEntryHandler = () => {
+        console.log(currentEditItem);
+        if (currentEditItem >= 0) doneEditingHandler(null, currentEditItem);
+        setCanAdd(false);
+        if (currentEditItem >= 0 && error[currentEditItem]) {
+            const { amzl, door } = error[currentEditItem];
+            console.log('edit error ' + error[currentEditItem]);
+            if (
+                (formType === 'outbound' && (amzl || door)) ||
+                (formType === 'inbound' && door)
+            )
+                return;
+        }
+        setOnlyEdits(canEdit.length);
         setCurrentEditItem(canEdit.length);
         setCurrentData((prev) => {
             let newData = [...prev];
             newData.push({
-                _id: Math.random() * 10,
+                _id: `${Math.random() * 10}${canEdit.length}`,
                 amzl: '',
                 door: '',
                 isTemp: true
             });
             return newData;
         });
-        console.log('can edit len ' + canEdit.length);
-        setCanAdd(false);
+        // console.log('can edit len ' + canEdit.length);
     };
 
     return (
@@ -154,6 +239,16 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
                                                 flexBasis="100%"
                                             >
                                                 <TextField
+                                                    error={
+                                                        error[index] &&
+                                                        error[index].amzl
+                                                    }
+                                                    helperText={
+                                                        error[index] &&
+                                                        error[index].amzl
+                                                            ? 'Must not be empty'
+                                                            : null
+                                                    }
                                                     disabled={!canEdit[index]}
                                                     label="Delivery Station"
                                                     value={amzl}
@@ -177,6 +272,16 @@ const AdminForm = ({ formType, setData, currentData, setCurrentData }) => {
                                         )}
                                         <Input flexGrow="3" flexBasis="100%">
                                             <TextField
+                                                error={
+                                                    error[index] &&
+                                                    error[index].door
+                                                }
+                                                helperText={
+                                                    error[index] &&
+                                                    error[index].door
+                                                        ? 'Must not be empty'
+                                                        : null
+                                                }
                                                 disabled={!canEdit[index]}
                                                 label="Door #"
                                                 value={door}
