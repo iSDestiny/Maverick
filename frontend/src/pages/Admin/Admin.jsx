@@ -16,9 +16,9 @@ const Admin = (props) => {
     const [currentInbound, setCurrentInbound] = useState([]);
     const history = useHistory();
 
-    if (correctPassword !== password) {
-        history.push('/login');
-    }
+    // if (correctPassword !== password) {
+    //     history.push('/login');
+    // }
 
     useEffect(() => {
         setCurrentInbound((prev) => {
